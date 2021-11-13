@@ -1,4 +1,4 @@
-const callsLimit = 2 * Math.pow(10, 6)
+const callsLimit = Math.pow(10, 6)
 let callsCounter = 0
 function newCall() {
   if (++callsCounter >= callsLimit) throw 'too many calls'
@@ -15,6 +15,7 @@ function K(x) {
 function S(x) {
   newCall()
   function S1(y) {
+    newCall()
     function S2(z) {
       return x(z)(y(z))
     }
@@ -88,7 +89,6 @@ ski = function (string) {
   return process(I)
 
   function process(value) {
-    newCall()
     let next = it.next().value
     if (!next) {
       return value
@@ -342,14 +342,14 @@ function* permute(n) {
   }
 }
 
-if (true) {
+if (false) {
   if (typeof window === 'undefined') {
     const repl = require('repl')
     // heapdump = require('heapdump')
     repl.start('> ')
   }
 } else {
-  searchNumber(6).forEach((p, i) => {
+  searchNumber(5).forEach((p, i) => {
     console.log(i, p.p.join(''))
   })
 }
@@ -358,4 +358,4 @@ const jot20 =
   '11  10 0 101  010 0001 0 000  010 01 01   101000 0011   01 001 0100     00 101011 0   0111 00111  10101 01  1    00 0 101 11 010  0 1 11111  0010 00  0 101 0 0 0 1    111   10 001001  01101 000 0 00 1 01 1 100 110111010011 011100 0 01 1 111  010   111 1 0   10 0101001 0001  01 100 0  11 111 1 10100 00 00 10011 0000011 1 1 1  10000   1  0010101 11 01  111  010 110000 110   10010 01 011101011  0 1 000 0 00  1 0001  1111 00 0   1 10  00 00  0101  101   0 001 1100010  0 1 0 11 11000 0  1010  1 1  011100110100 1  1 0 0 01 0  0 011 0010 10 001 1101 0 00 1111001 0     1101 011110010000010  0011 01 011  01 11   00000 0 0  11010 1 101 11 0 11 110  01010 1 00111 10  1 1    0110   0 0 11  1    11 1   001000 00 0 110000 1 1 1111 001 10100 1 00111101001100 00   001 01  010100110111 10 1   1001 11 1100 1000010001011100 111 1111000 01001 0 0110 01010 100   01 0 1  1101100 110011 0111000110 1010 010  0011 00 1011  0 101 1 11  100100 010   11 00  0 1000 1111 0  10 1  000 01 10 111101  1 101100010000111111110  1100 0000 11 010'
 const ski30 =
   ' ()   K(I I(((S SIK  KI (S   S( S    K) ( ) )) )SK( (()    ) II( II I )K)I(  IKS  )  S) K())     S (IS  ) K   KK II (( (K S  ( ) )  ISS  K) )S(  K  ()   K(I I(((S SIK  KI (S   S( S    K)   ) )) )SK( (()    )  I I)I  )K) (IS    K   KK II (( (K S  ( ) )  ISS  K) )S(  K  ()   K(I I(((S SIK  KI (S   S( S    K)   ) )) )SK( (()    )  I I)I  )K) I    ))(KI S I  ) )) )SK( (() (  )K S S( SK    KIK KS    I S S  K )S S(( )     I(KK   SK I)  (  S)K SSI  SII(S  II K  KK  ) (  ()    S  I I  I K(K   K I SS  ()I (  K K I(  II)( S )K  ))  IK  IS)SS K (S (  SIIK  I(K  S SK ( K   I    KK  S K (    )KK KK) (  I (   I) IS   KKK I) K K SI  S )(K  I I  SIIK      K(SS KK ( II   I   ) I K( ) ( I ) S  I))S ( (S)  ()    ()IIK  KK)  KK I ( S)(I S IS S     ) S( )     I S K   (K( KKI (() SI(  I)   S S       I) S I   KS    (   IKSI ( SS))  KS(S  I)( () KSKS(K)SI )S   K)I     (        (   I(( I)) K(  ) S)K (I S I IS)I   ( SSK  ( K )I    S  )IKSI(( S((KIK )K  S) ) )  ( )SI S K( )( I S  I    S    S S))SI)SS    IS(I)(((K ) SS)I(  )  ())I)))(  '
-const skiHeapError = '((K(SSIKK(KS(I(KS)KKKSKSI)SSSIKISISSS)S)KSS(S((IKKI)SSSI)KSKI)))'
+const skiHeapError = 'K(SSIKK(KS(I(KS)KKKSKSI)SSSIKISISSS)S)KSS(S((IKKI)SSSI)KSKI)'
