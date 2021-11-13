@@ -15,6 +15,12 @@ function S(x) {
   return S1
 }
 
+function I(x) {
+  return x
+}
+
+dot = a => b => a(b)
+
 function basis(c) {
   return c(S)(K)
 }
@@ -62,13 +68,44 @@ function jot(string) {
       return process(position + 1, value)
     }
   }
-  return process(0, x => x)
+  return process(0, I)
+}
+
+ski = function (string, timeout) {
+  const finishTime = Date.now() + timeout
+  function* iterator() {
+    for (let s of string) {
+      yield s
+    }
+  }
+  const it = iterator()
+  return process(I)
+
+  function process(value) {
+    if (Date.now() >= finishTime) return null
+    let next = it.next().value
+    if (!next) {
+      return value
+    } else if (next == 'I') {
+      return process(value(I))
+    } else if (next == 'K') {
+      return process(value(K))
+    } else if (next == 'S') {
+      return process(value(S))
+    } else if (next == '(') {
+      return process(value(process(I)))
+    } else if (next == ')') {
+      return value
+    } else {
+      return process(value)
+    }
+  }
 }
 
 k = '11100'
 s = '11111000'
 
-I = S(K)(K)
+// I = S(K)(K)
 plus1 = x => x + 1
 succ = S(S(K(S))(K))
 sum = S(K(S))(S(K(S(K(S))(K))))
@@ -83,7 +120,7 @@ c7 = succ(c6)
 c8 = succ(c7)
 c9 = succ(c8)
 
-const options = '10' + new Array(1).fill(' ').join('')
+const options = '(SKI)' + new Array(5).fill(' ').join('')
 class Individual {
   constructor(p) {
     this.p = p
@@ -128,7 +165,7 @@ class Individual {
     let opts = options.slice()
     const position = random(p.length)
     const current = p.charAt(position)
-    opts = opts.replace(new RegExp(current, 'g'), '')
+    opts = opts.replace(new RegExp('\\' + current, 'g'), '')
     opts = Array.from(new Set(opts)).join('')
     const mutation = opts[random(opts.length)]
     return new Individual(p.slice(0, position) + mutation + p.slice(position + 1))
@@ -179,17 +216,20 @@ function search(population, fitness) {
       if (!isGettingLaid) return
       if (!mate) mate = p
       else {
-        newPopulation.push(...mate.crossover2(p))
+        newPopulation.push(...mate.crossover(p))
         mate = null
         crossovers += 2
       }
     })
-    // population.sort((a, b) => b.fitness - a.fitness)
-    population = population.slice(newPopulation.length).concat(newPopulation)
-    // population = newPopulation.concat(population.slice(0, population.length - newPopulation.length))
-    // population.sort(() => Math.random() - 0.5)
+    // // kill old age
+    // population = population.slice(newPopulation.length).concat(newPopulation)
+    // kill not fitness
+    population.sort((a, b) => b.fitness - a.fitness)
+    population = newPopulation.concat(population.slice(0, population.length - newPopulation.length))
+    population.sort(() => Math.random() - 0.5)
 
     let mutations = 0
+    // mutate all
     population = population.map(p => {
       if (Math.random() > MR) return p
       ++mutations
@@ -221,7 +261,7 @@ const fitnessFunctions = {
     return (
       (() => {
         try {
-          i = jot(i)
+          i = ski(i, 10000)
         } catch {
           return fib(1)
         }
@@ -245,13 +285,51 @@ const fitnessFunctions = {
   },
 }
 
-function searchNumber(n) {
+searchNumber = function (n) {
   const population = createPopulation(500, 1024)
   return search(population, fitnessFunctions.searchNumber(n))
 }
 
 function testSearchNumber(j) {
   return jot(j)(plus1)(0)
+}
+
+bruteForceSearchNumber = function (n) {
+  const opts = ' 01'
+  const fitness = fitnessFunctions.searchNumber(n)
+  let length = 1
+  let successes = 0
+  for (let perm of permute(opts.length)) {
+    let expr = perm
+      .split('')
+      .map(i => opts[i])
+      .join('')
+
+    if (expr.length > length) {
+      const total = Math.pow(opts.length, length)
+      const rate = (100 * successes) / total
+      console.log({ length, rate, successes, total })
+      successes = 0
+      length = expr.length
+    }
+
+    if (fitness(expr) === 1) {
+      ++successes
+    }
+  }
+}
+
+function* permute(n) {
+  let i = 0
+  while (true) {
+    yield i.toString(n)
+    ++i
+  }
+}
+
+if (typeof window === 'undefined') {
+  const repl = require('repl')
+  repl.start('> ')
 }
 
 const jot20 =
